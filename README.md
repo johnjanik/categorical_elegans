@@ -238,7 +238,7 @@ If you use this code in your research, please cite:
 @software{categorical_elegans,
   author = {Janik, John},
   title = {Categorical Elegans: A Minimal Model of C. elegans Behavior},
-  year = {2024},
+  year = {2025},
   url = {https://github.com/johnjanik/categorical_elegans}
 }
 ```
