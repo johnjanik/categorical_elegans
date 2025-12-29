@@ -1,0 +1,10 @@
+observable,value,unit,source
+speed_mean,0.2,mm/s,Yemini et al. 2013
+speed_std,0.05,mm/s,Yemini et al. 2013
+reversal_rate,2.0,per_min,Gray et al. 2005
+run_length,10.0,seconds,Gray et al. 2005
+omega_turn_rate,0.5,per_min,Gray et al. 2005
+anterior_touch_prob,0.8,probability,Chalfie et al. 1985
+posterior_touch_prob,0.7,probability,Chalfie et al. 1985
+response_latency,200,ms,Chalfie et al. 1985
+pharyngeal_pumping,200,per_min,Avery & Horvitz 1989

@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "source": "Synthesized from published literature values",
+    "references": [
+      "Yemini E. et al. (2013) A database of C. elegans behavioral phenotypes",
+      "Gray J.M. et al. (2005) A circuit for navigation in C. elegans",
+      "Chalfie M. et al. (1985) The neural circuit for touch sensitivity in C. elegans",
+      "Avery L. & Horvitz H.R. (1989) Pharyngeal pumping in C. elegans"
+    ]
+  },
+  "conditions": {
+    "N2_on_food": {
+      "strain": "N2 (wild-type)",
+      "condition": "Well-fed on OP50 bacteria",
+      "observables": {
+        "velocity_mean": 0.2,
+        "velocity_std": 0.08,
+        "angular_velocity_mean": 0.3,
+        "angular_velocity_std": 0.15,
+        "reversal_rate": 2.0,
+        "reversal_rate_std": 0.8,
+        "run_length_mean": 10.0,
+        "run_length_std": 5.0,
+        "omega_turn_rate": 0.5,
+        "omega_turn_rate_std": 0.3,
+        "speed_mean": 0.2,
+        "speed_variance": 0.01,
+        "pharyngeal_pumping": 200,
+        "pharyngeal_pumping_std": 30
+      },
+      "n_animals": 100,
+      "duration_min": 30
+    },
+    "N2_off_food": {
+      "strain": "N2 (wild-type)",
+      "condition": "Off food (searching)",
+      "observables": {
+        "velocity_mean": 0.3,
+        "velocity_std": 0.1,
+        "angular_velocity_mean": 0.4,
+        "reversal_rate": 5.0,
+        "reversal_rate_std": 2.0,
+        "run_length_mean": 5.0,
+        "omega_turn_rate": 1.5,
+        "speed_mean": 0.3,
+        "speed_variance": 0.02,
+        "pharyngeal_pumping": 20
+      },
+      "n_animals": 50,
+      "duration_min": 15
+    },
+    "N2_anterior_touch": {
+      "strain": "N2 (wild-type)",
+      "condition": "Anterior gentle touch stimulus",
+      "observables": {
+        "reversal_probability": 0.85,
+        "reversal_probability_std": 0.1,
+        "response_latency_ms": 180,
+        "response_latency_std": 50,
+        "reversal_duration_s": 2.5,
+        "omega_turn_probability": 0.3
+      },
+      "n_trials": 200,
+      "n_animals": 20
+    },
+    "N2_posterior_touch": {
+      "strain": "N2 (wild-type)",
+      "condition": "Posterior gentle touch stimulus",
+      "observables": {
+        "acceleration_probability": 0.75,
+        "acceleration_probability_std": 0.12,
+        "response_latency_ms": 150,
+        "response_latency_std": 40,
+        "speed_increase_fraction": 0.4
+      },
+      "n_trials": 150,
+      "n_animals": 20
+    }
+  }
+}

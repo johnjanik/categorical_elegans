@@ -17,7 +17,7 @@ from typing import Dict, List, Tuple, Optional
 from collections import deque
 import time
 
-from c_elegans_connectome_loader import (
+from .c_elegans_connectome_loader import (
     load_connectome, get_available_loaders, ConnectomeData,
     NeuronType, Neurotransmitter, NeuronInfo, SynapseInfo, GapJunctionInfo
 )

@@ -1,0 +1,23 @@
+{
+  "categorical": {
+    "neurons": 121,
+    "synapses": 68,
+    "gap_junctions": 16,
+    "L_struct": 17.006326078524935,
+    "L_param": 18.24573772619847,
+    "total_mdl": 35.252063804723406,
+    "distance": 440.25366038568006,
+    "anterior_touch_correct": true,
+    "posterior_touch_correct": true,
+    "anterior_delta": 0.06685411261743712,
+    "posterior_delta": 0.062278849999745756,
+    "backward_drive": 0.6370947921549368,
+    "forward_drive": 0.6077186570557189
+  },
+  "openworm": {
+    "neurons": 448,
+    "synapses": 4681,
+    "gap_junctions": 2698,
+    "L_struct": 32.397630604717826
+  }
+}

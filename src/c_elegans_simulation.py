@@ -18,6 +18,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Dict, List, Tuple, Optional, Callable
+from collections import deque
 import time
 
 
@@ -52,6 +53,338 @@ class Behavior(Enum):
     FEEDING = "Pharyngeal pumping"
     ESCAPE_ANTERIOR = "Anterior touch escape"
     ESCAPE_POSTERIOR = "Posterior touch escape"
+
+
+# =============================================================================
+# Observable Vector - 15-dimensional behavioral measurement space
+# =============================================================================
+
+@dataclass
+class ObservableVector:
+    """
+    15-dimensional observable vector for behavioral comparison.
+
+    This matches the observable space O defined in minimal_model_theory.tex:
+    O = {velocity, angular_velocity, reversal_rate, run_length, speed_mean,
+         speed_variance, turn_angle_mean, turn_angle_variance, omega_turn_rate,
+         chemotaxis_index, anterior_touch_prob, posterior_touch_prob,
+         response_latency, pharyngeal_pumping}
+    """
+    # Locomotion kinematics
+    velocity: float = 0.0              # Mean centroid velocity (μm/s, signed)
+    angular_velocity: float = 0.0       # Mean angular velocity (rad/s)
+
+    # Reversal behavior
+    reversal_rate: float = 0.0          # Reversals per minute
+    run_length: float = 0.0             # Mean forward run duration (seconds)
+
+    # Speed statistics
+    speed_mean: float = 0.0             # Mean speed magnitude (μm/s)
+    speed_variance: float = 0.0         # Speed variance
+
+    # Turning behavior
+    turn_angle_mean: float = 0.0        # Mean turn angle (degrees)
+    turn_angle_variance: float = 0.0    # Turn angle variance
+    omega_turn_rate: float = 0.0        # Omega turns per minute
+
+    # Navigation indices
+    chemotaxis_index: float = 0.0       # (-1 to 1): bias toward attractant
+
+    # Touch response probabilities
+    anterior_touch_prob: float = 0.0    # P(reversal | anterior touch)
+    posterior_touch_prob: float = 0.0   # P(acceleration | posterior touch)
+
+    # Response dynamics
+    response_latency: float = 0.0       # Time to response onset (ms)
+
+    # Feeding
+    pharyngeal_pumping: float = 0.0     # Pumps per minute
+
+    def to_array(self) -> np.ndarray:
+        """Convert to 15-dimensional numpy array."""
+        return np.array([
+            self.velocity,
+            self.angular_velocity,
+            self.reversal_rate,
+            self.run_length,
+            self.speed_mean,
+            self.speed_variance,
+            self.turn_angle_mean,
+            self.turn_angle_variance,
+            self.omega_turn_rate,
+            self.chemotaxis_index,
+            self.anterior_touch_prob,
+            self.posterior_touch_prob,
+            self.response_latency,
+            self.pharyngeal_pumping,
+            0.0  # Reserved for future use (15th dimension)
+        ])
+
+    @staticmethod
+    def from_array(arr: np.ndarray) -> 'ObservableVector':
+        """Create from numpy array."""
+        return ObservableVector(
+            velocity=arr[0],
+            angular_velocity=arr[1],
+            reversal_rate=arr[2],
+            run_length=arr[3],
+            speed_mean=arr[4],
+            speed_variance=arr[5],
+            turn_angle_mean=arr[6],
+            turn_angle_variance=arr[7],
+            omega_turn_rate=arr[8],
+            chemotaxis_index=arr[9],
+            anterior_touch_prob=arr[10],
+            posterior_touch_prob=arr[11],
+            response_latency=arr[12],
+            pharyngeal_pumping=arr[13],
+        )
+
+    def distance(self, other: 'ObservableVector') -> float:
+        """Compute L2 distance to another observable vector."""
+        return float(np.linalg.norm(self.to_array() - other.to_array()))
+
+    def __repr__(self) -> str:
+        return (f"ObservableVector(\n"
+                f"  velocity={self.velocity:.3f}, angular_velocity={self.angular_velocity:.3f},\n"
+                f"  reversal_rate={self.reversal_rate:.3f}, run_length={self.run_length:.3f},\n"
+                f"  speed_mean={self.speed_mean:.3f}, speed_variance={self.speed_variance:.3f},\n"
+                f"  turn_angle_mean={self.turn_angle_mean:.3f}, turn_angle_variance={self.turn_angle_variance:.3f},\n"
+                f"  omega_turn_rate={self.omega_turn_rate:.3f}, chemotaxis_index={self.chemotaxis_index:.3f},\n"
+                f"  anterior_touch_prob={self.anterior_touch_prob:.3f}, posterior_touch_prob={self.posterior_touch_prob:.3f},\n"
+                f"  response_latency={self.response_latency:.3f}, pharyngeal_pumping={self.pharyngeal_pumping:.3f}\n"
+                f")")
+
+
+class BehaviorHistory:
+    """
+    Temporal history buffer for computing time-dependent observables.
+
+    Tracks behavioral states over a rolling window to compute:
+    - Reversal rates
+    - Run length statistics
+    - Speed variance
+    - Turn angle statistics
+    - Response latencies
+    """
+
+    def __init__(self, window_size: int = 1000, dt_ms: float = 1.0):
+        """
+        Initialize behavior history.
+
+        Args:
+            window_size: Number of timesteps to keep in history
+            dt_ms: Timestep size in milliseconds
+        """
+        self.window_size = window_size
+        self.dt_ms = dt_ms
+
+        # Rolling buffers for behavioral variables
+        self.forward_drive_history = deque(maxlen=window_size)
+        self.backward_drive_history = deque(maxlen=window_size)
+        self.speed_history = deque(maxlen=window_size)
+        self.turn_bias_history = deque(maxlen=window_size)
+        self.head_angle_history = deque(maxlen=window_size)
+        self.pharyngeal_history = deque(maxlen=window_size)
+
+        # Event tracking
+        self.reversal_times: List[float] = []  # Timestamps of reversals
+        self.omega_turn_times: List[float] = []  # Timestamps of omega turns
+        self.run_start_time: Optional[float] = None
+        self.run_lengths: List[float] = []
+
+        # Response latency tracking
+        self.stimulus_onset_time: Optional[float] = None
+        self.response_detected: bool = False
+        self.last_response_latency: float = 0.0
+
+        # State tracking
+        self.current_time: float = 0.0
+        self.was_reversing: bool = False
+        self.was_omega_turning: bool = False
+
+        # Accumulated touch response counts
+        self.anterior_touch_trials: int = 0
+        self.anterior_touch_reversals: int = 0
+        self.posterior_touch_trials: int = 0
+        self.posterior_touch_accelerations: int = 0
+
+    def update(self, behavior: 'BehavioralState',
+               sensory: Optional['SensoryInput'] = None) -> None:
+        """
+        Update history with current behavioral state.
+
+        Args:
+            behavior: Current behavioral state
+            sensory: Optional sensory input (for response tracking)
+        """
+        self.current_time += self.dt_ms
+
+        # Add to rolling buffers
+        self.forward_drive_history.append(behavior.forward_drive)
+        self.backward_drive_history.append(behavior.backward_drive)
+        self.speed_history.append(behavior.speed)
+        self.turn_bias_history.append(behavior.turn_bias)
+        self.head_angle_history.append(behavior.head_angle)
+        self.pharyngeal_history.append(behavior.pharyngeal_pumping)
+
+        # Detect reversals (transition from forward to backward)
+        is_reversing = behavior.backward_drive > behavior.forward_drive + 0.2
+        if is_reversing and not self.was_reversing:
+            self.reversal_times.append(self.current_time)
+            # Track run length
+            if self.run_start_time is not None:
+                run_length = (self.current_time - self.run_start_time) / 1000.0  # seconds
+                self.run_lengths.append(run_length)
+            self.run_start_time = None
+        elif not is_reversing and self.was_reversing:
+            # Started a new forward run
+            self.run_start_time = self.current_time
+        self.was_reversing = is_reversing
+
+        # Detect omega turns
+        if behavior.omega_turn and not self.was_omega_turning:
+            self.omega_turn_times.append(self.current_time)
+        self.was_omega_turning = behavior.omega_turn
+
+        # Track touch response latencies
+        if sensory is not None:
+            # Detect stimulus onset
+            if (sensory.anterior_touch > 0.5 or sensory.posterior_touch > 0.5) and \
+               self.stimulus_onset_time is None:
+                self.stimulus_onset_time = self.current_time
+                self.response_detected = False
+
+                # Count as a trial
+                if sensory.anterior_touch > 0.5:
+                    self.anterior_touch_trials += 1
+                if sensory.posterior_touch > 0.5:
+                    self.posterior_touch_trials += 1
+
+            # Detect response (significant change in behavior)
+            if self.stimulus_onset_time is not None and not self.response_detected:
+                if behavior.backward_drive > 0.3 or behavior.forward_drive > 0.3:
+                    self.response_detected = True
+                    self.last_response_latency = self.current_time - self.stimulus_onset_time
+
+                    # Count as success
+                    if sensory.anterior_touch > 0.5 and behavior.backward_drive > 0.3:
+                        self.anterior_touch_reversals += 1
+                    if sensory.posterior_touch > 0.5 and behavior.forward_drive > 0.3:
+                        self.posterior_touch_accelerations += 1
+
+            # Reset when stimulus ends
+            if sensory.anterior_touch < 0.1 and sensory.posterior_touch < 0.1:
+                self.stimulus_onset_time = None
+
+        # Prune old events (keep only last 60 seconds)
+        cutoff_time = self.current_time - 60000  # 60 seconds in ms
+        self.reversal_times = [t for t in self.reversal_times if t > cutoff_time]
+        self.omega_turn_times = [t for t in self.omega_turn_times if t > cutoff_time]
+        self.run_lengths = self.run_lengths[-100:]  # Keep last 100 runs
+
+    def compute_observables(self) -> ObservableVector:
+        """
+        Compute the 15-dimensional observable vector from history.
+
+        Returns:
+            ObservableVector with computed statistics
+        """
+        obs = ObservableVector()
+
+        if len(self.speed_history) < 10:
+            return obs  # Not enough data
+
+        speeds = np.array(self.speed_history)
+        forward_drives = np.array(self.forward_drive_history)
+        backward_drives = np.array(self.backward_drive_history)
+        turn_biases = np.array(self.turn_bias_history)
+        head_angles = np.array(self.head_angle_history)
+        pharyngeal = np.array(self.pharyngeal_history)
+
+        # Velocity (signed: positive = forward, negative = backward)
+        velocity_sign = np.where(forward_drives > backward_drives, 1.0, -1.0)
+        obs.velocity = float(np.mean(speeds * velocity_sign))
+
+        # Angular velocity from head angle changes
+        if len(head_angles) > 1:
+            angular_changes = np.diff(head_angles)
+            obs.angular_velocity = float(np.mean(np.abs(angular_changes)) * 1000 / self.dt_ms)
+
+        # Reversal rate (per minute)
+        window_duration_min = len(self.speed_history) * self.dt_ms / 60000.0
+        if window_duration_min > 0:
+            recent_reversals = sum(1 for t in self.reversal_times
+                                   if t > self.current_time - len(self.speed_history) * self.dt_ms)
+            obs.reversal_rate = recent_reversals / window_duration_min
+
+        # Run length
+        if self.run_lengths:
+            obs.run_length = float(np.mean(self.run_lengths))
+
+        # Speed statistics
+        obs.speed_mean = float(np.mean(speeds))
+        obs.speed_variance = float(np.var(speeds))
+
+        # Turn angle statistics (using turn_bias as proxy)
+        turn_angles = turn_biases * 90  # Scale to approximate degrees
+        obs.turn_angle_mean = float(np.mean(np.abs(turn_angles)))
+        obs.turn_angle_variance = float(np.var(turn_angles))
+
+        # Omega turn rate (per minute)
+        if window_duration_min > 0:
+            recent_omega = sum(1 for t in self.omega_turn_times
+                              if t > self.current_time - len(self.speed_history) * self.dt_ms)
+            obs.omega_turn_rate = recent_omega / window_duration_min
+
+        # Chemotaxis index: net forward movement relative to total movement
+        if np.sum(np.abs(forward_drives) + np.abs(backward_drives)) > 0:
+            obs.chemotaxis_index = float(
+                (np.sum(forward_drives) - np.sum(backward_drives)) /
+                (np.sum(forward_drives) + np.sum(backward_drives) + 0.01)
+            )
+
+        # Touch response probabilities
+        if self.anterior_touch_trials > 0:
+            obs.anterior_touch_prob = self.anterior_touch_reversals / self.anterior_touch_trials
+        if self.posterior_touch_trials > 0:
+            obs.posterior_touch_prob = self.posterior_touch_accelerations / self.posterior_touch_trials
+
+        # Response latency
+        obs.response_latency = self.last_response_latency
+
+        # Pharyngeal pumping rate (pumps per minute)
+        # Approximate: high activity = more pumping
+        obs.pharyngeal_pumping = float(np.mean(pharyngeal)) * 240  # Scale to realistic range
+
+        return obs
+
+    def reset(self) -> None:
+        """Reset all history buffers."""
+        self.forward_drive_history.clear()
+        self.backward_drive_history.clear()
+        self.speed_history.clear()
+        self.turn_bias_history.clear()
+        self.head_angle_history.clear()
+        self.pharyngeal_history.clear()
+
+        self.reversal_times = []
+        self.omega_turn_times = []
+        self.run_lengths = []
+        self.run_start_time = None
+
+        self.stimulus_onset_time = None
+        self.response_detected = False
+        self.last_response_latency = 0.0
+
+        self.current_time = 0.0
+        self.was_reversing = False
+        self.was_omega_turning = False
+
+        self.anterior_touch_trials = 0
+        self.anterior_touch_reversals = 0
+        self.posterior_touch_trials = 0
+        self.posterior_touch_accelerations = 0
 
 
 # =============================================================================
@@ -823,6 +1156,14 @@ class CElegansSimulation:
         # Activity vector
         self.activity = np.zeros(self.n_neurons)
 
+        # Behavioral history for computing observables
+        self.history = BehaviorHistory(window_size=1000, dt_ms=self.dt)
+
+        # Cached observable vector (updated periodically)
+        self._observables: Optional[ObservableVector] = None
+        self._observables_update_interval = 100  # Update every 100 steps
+        self._steps_since_observables_update = 0
+
         print(f"Initialized C. elegans simulation:")
         print(f"  Neurons: {self.n_neurons}")
         print(f"  Chemical synapses: {len(self.synapses)}")
@@ -1046,6 +1387,15 @@ class CElegansSimulation:
             # 4. Compute behavioral output
             self._compute_behavior()
 
+            # 5. Update behavioral history for observable computation
+            self.history.update(self.behavior, self.sensory)
+
+            # 6. Periodically update cached observables
+            self._steps_since_observables_update += 1
+            if self._steps_since_observables_update >= self._observables_update_interval:
+                self._observables = self.history.compute_observables()
+                self._steps_since_observables_update = 0
+
             self.time += self.dt
 
     def reset(self):
@@ -1053,6 +1403,24 @@ class CElegansSimulation:
         self.activity = np.zeros(self.n_neurons)
         self.time = 0.0
         self.behavior = BehavioralState()
+        self.history.reset()
+        self._observables = None
+        self._steps_since_observables_update = 0
+
+    def get_observables(self, force_update: bool = False) -> ObservableVector:
+        """
+        Get the current 15-dimensional observable vector.
+
+        Args:
+            force_update: If True, recompute observables immediately
+
+        Returns:
+            ObservableVector with current behavioral statistics
+        """
+        if force_update or self._observables is None:
+            self._observables = self.history.compute_observables()
+            self._steps_since_observables_update = 0
+        return self._observables
 
     def get_neuron_activity(self, name: str) -> float:
         """Get activity of a specific neuron."""

@@ -1,0 +1,29 @@
+{
+  "name": "N2_on_food",
+  "zenodo_id": "4074963",
+  "title": "CeMEE MWT",
+  "doi": "10.5281/zenodo.4074963",
+  "files": [
+    {
+      "name": "CeMEE_MWT_founders.tar.gz",
+      "size": 550231646,
+      "url": "https://zenodo.org/api/records/4074963/files/CeMEE_MWT_founders.tar.gz/content"
+    },
+    {
+      "name": "CeMEE_MWT_RIL.tar.gz",
+      "size": 41487459734,
+      "url": "https://zenodo.org/api/records/4074963/files/CeMEE_MWT_RIL.tar.gz/content"
+    },
+    {
+      "name": "CeMEE_MWT_MA.tar.gz",
+      "size": 4417570024,
+      "url": "https://zenodo.org/api/records/4074963/files/CeMEE_MWT_MA.tar.gz/content"
+    },
+    {
+      "name": "CeMEE_MWT_populations.tar.gz",
+      "size": 1855067428,
+      "url": "https://zenodo.org/api/records/4074963/files/CeMEE_MWT_populations.tar.gz/content"
+    }
+  ],
+  "total_size_bytes": 48310328832
+}

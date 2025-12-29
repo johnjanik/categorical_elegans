@@ -1,0 +1,27 @@
+
+MaterialName : newMaterial
+shader : color
+MaterialType : Standard
+TwoSided : 0
+AlphaToCoverage : 0
+TransparencyInDiffuseMap : 0
+AmbientColor : 0.588 0.588 0.588
+DiffuseColor : 1 0 0
+SpecularColor : 1 1 1
+Opacity : 1
+Glossiness : 12.8
+DiscardThreshold : 0.2
+
+
+MaterialName : newMaterial1
+shader : color
+MaterialType : Standard
+TwoSided : 0
+AlphaToCoverage : 0
+TransparencyInDiffuseMap : 0
+AmbientColor : 0.588 0.588 0.588
+DiffuseColor : 0 0.33 1
+SpecularColor : 1 1 1
+Opacity : 1
+Glossiness : 12.8
+DiscardThreshold : 0.2

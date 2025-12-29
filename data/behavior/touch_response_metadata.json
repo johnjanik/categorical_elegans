@@ -1,0 +1,159 @@
+{
+  "name": "touch_response",
+  "zenodo_id": "4074990",
+  "title": "More precise tracking of horizontal than vertical target motion with both the eyes and hand",
+  "doi": "10.5281/zenodo.4074990",
+  "files": [
+    {
+      "name": "Visuomotor.iceMat",
+      "size": 548,
+      "url": "https://zenodo.org/api/records/4074990/files/Visuomotor.iceMat/content"
+    },
+    {
+      "name": "Visuomotor.ice",
+      "size": 729,
+      "url": "https://zenodo.org/api/records/4074990/files/Visuomotor.ice/content"
+    },
+    {
+      "name": "Visuomotor.txt",
+      "size": 90,
+      "url": "https://zenodo.org/api/records/4074990/files/Visuomotor.txt/content"
+    },
+    {
+      "name": "TargetCursor10Y.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/TargetCursor10Y.dat/content"
+    },
+    {
+      "name": "Visuomotor.icepro",
+      "size": 265,
+      "url": "https://zenodo.org/api/records/4074990/files/Visuomotor.icepro/content"
+    },
+    {
+      "name": "TargetCursor10X.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/TargetCursor10X.dat/content"
+    },
+    {
+      "name": "Pattern2_45deg.BAS",
+      "size": 47371,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern2_45deg.BAS/content"
+    },
+    {
+      "name": "Pattern5_0deg.BAS",
+      "size": 47089,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern5_0deg.BAS/content"
+    },
+    {
+      "name": "BaselineTracking.dcm",
+      "size": 161258,
+      "url": "https://zenodo.org/api/records/4074990/files/BaselineTracking.dcm/content"
+    },
+    {
+      "name": "common_subroutines.pl",
+      "size": 11694,
+      "url": "https://zenodo.org/api/records/4074990/files/common_subroutines.pl/content"
+    },
+    {
+      "name": "Danion.pl",
+      "size": 6761,
+      "url": "https://zenodo.org/api/records/4074990/files/Danion.pl/content"
+    },
+    {
+      "name": "DATAmain.xlsx",
+      "size": 195899,
+      "url": "https://zenodo.org/api/records/4074990/files/DATAmain.xlsx/content"
+    },
+    {
+      "name": "draw_figure.pl",
+      "size": 7326,
+      "url": "https://zenodo.org/api/records/4074990/files/draw_figure.pl/content"
+    },
+    {
+      "name": "EyeHand10X.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/EyeHand10X.dat/content"
+    },
+    {
+      "name": "EyeHand10Y.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/EyeHand10Y.dat/content"
+    },
+    {
+      "name": "EyeTarget10X.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/EyeTarget10X.dat/content"
+    },
+    {
+      "name": "EyeTarget10Y.dat",
+      "size": 96100,
+      "url": "https://zenodo.org/api/records/4074990/files/EyeTarget10Y.dat/content"
+    },
+    {
+      "name": "Pattern1_0deg.BAS",
+      "size": 47089,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern1_0deg.BAS/content"
+    },
+    {
+      "name": "Pattern1_0deg.T91",
+      "size": 69887,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern1_0deg.T91/content"
+    },
+    {
+      "name": "Pattern2_0deg.T91",
+      "size": 69887,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern2_0deg.T91/content"
+    },
+    {
+      "name": "Pattern3_0deg.BAS",
+      "size": 47089,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern3_0deg.BAS/content"
+    },
+    {
+      "name": "Pattern3_0deg.T91",
+      "size": 69887,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern3_0deg.T91/content"
+    },
+    {
+      "name": "Pattern4_0deg.BAS",
+      "size": 47089,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern4_0deg.BAS/content"
+    },
+    {
+      "name": "Pattern4_0deg.T91",
+      "size": 69887,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern4_0deg.T91/content"
+    },
+    {
+      "name": "Pattern5_0deg.T91",
+      "size": 69887,
+      "url": "https://zenodo.org/api/records/4074990/files/Pattern5_0deg.T91/content"
+    },
+    {
+      "name": "pattern.txt",
+      "size": 12391,
+      "url": "https://zenodo.org/api/records/4074990/files/pattern.txt/content"
+    },
+    {
+      "name": "READme.txt",
+      "size": 1906,
+      "url": "https://zenodo.org/api/records/4074990/files/READme.txt/content"
+    },
+    {
+      "name": "routines_that_use_R.pl",
+      "size": 11929,
+      "url": "https://zenodo.org/api/records/4074990/files/routines_that_use_R.pl/content"
+    },
+    {
+      "name": "saccades.pl",
+      "size": 4713,
+      "url": "https://zenodo.org/api/records/4074990/files/saccades.pl/content"
+    },
+    {
+      "name": "SACinfo10trials.dat",
+      "size": 1520272,
+      "url": "https://zenodo.org/api/records/4074990/files/SACinfo10trials.dat/content"
+    }
+  ],
+  "total_size_bytes": 3097543
+}

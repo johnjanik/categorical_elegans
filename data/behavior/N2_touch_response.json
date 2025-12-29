@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "experiment": "Gentle touch response",
+    "strain": "N2",
+    "n_animals": 20,
+    "n_trials_per_animal": 10,
+    "stimulus_duration_ms": 100,
+    "inter_trial_interval_s": 60,
+    "references": [
+      "Chalfie et al. 1985",
+      "Way & Bhatt 2015"
+    ]
+  },
+  "anterior_touch": {
+    "n_trials": 200,
+    "n_responses": 170,
+    "response_probability": 0.85,
+    "response_latencies_ms": {
+      "mean": 180,
+      "std": 50,
+      "min": 80,
+      "max": 400
+    },
+    "reversal_durations_s": {
+      "mean": 2.5,
+      "std": 1.2
+    },
+    "omega_turn_fraction": 0.3
+  },
+  "posterior_touch": {
+    "n_trials": 200,
+    "n_responses": 150,
+    "response_probability": 0.75,
+    "response_latencies_ms": {
+      "mean": 150,
+      "std": 40,
+      "min": 60,
+      "max": 350
+    },
+    "speed_increase_fraction": 0.4
+  }
+}
